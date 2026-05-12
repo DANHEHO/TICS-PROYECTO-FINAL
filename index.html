@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema Taller Mecánico</title>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <header class="site-header">
+        <div class="brand">
+            <h1>Taller Mecánico</h1>
+            <p>CRM + ERP para clientes, vehículos, servicios y refacciones</p>
+        </div>
+        <nav class="main-nav">
+            <button class="tab-button active" data-tab="crm">CRM Clientes</button>
+            <button class="tab-button" data-tab="erp">ERP Servicios</button>
+            <button class="tab-button" data-tab="finanzas">Costos e Ingresos</button>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section id="crm" class="tab-content active">
+            <div class="panel">
+                <h2>Registro de Clientes y Vehículos</h2>
+                <form id="clientForm" class="form-grid">
+                    <label>Nombre completo:<span>*</span>
+                        <input type="text" id="clientName" required />
+                    </label>
+                    <label>Teléfono:<span>*</span>
+                        <input type="tel" id="clientPhone" required />
+                    </label>
+                    <label>Correo electrónico:
+                        <input type="email" id="clientEmail" />
+                    </label>
+                    <label>Marca / Modelo / Año:<span>*</span>
+                        <input type="text" id="vehicleInfo" required />
+                    </label>
+                    <label>Placas / VIN:
+                        <input type="text" id="vehiclePlates" />
+                    </label>
+                    <label>Observaciones:
+                        <textarea id="clientNotes" rows="3"></textarea>
+                    </label>
+                    <input type="hidden" id="clientId" />
+                    <button type="submit" class="primary-button">Guardar Cliente</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Listado de Clientes</h2>
+                <div class="table-wrapper">
+                    <table id="clientTable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Vehículo</th>
+                                <th>Placas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="erp" class="tab-content">
+            <div class="panel">
+                <h2>Registro de Servicios, Citas y Refacciones</h2>
+                <form id="serviceForm" class="form-grid">
+                    <label>Cliente:<span>*</span>
+                        <select id="serviceClient" required>
+                            <option value="">Selecciona un cliente</option>
+                        </select>
+                    </label>
+                    <label>Tipo de servicio:<span>*</span>
+                        <select id="serviceType" required>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Reparación">Reparación</option>
+                            <option value="Cita">Cita</option>
+                            <option value="Refacción">Refacción</option>
+                        </select>
+                    </label>
+                    <label>Descripción:<span>*</span>
+                        <textarea id="serviceDescription" rows="3" required></textarea>
+                    </label>
+                    <label>Costo estimado (MXN):<span>*</span>
+                        <input type="number" id="serviceCost" min="0" step="0.01" required />
+                    </label>
+                    <label>Estatus:<span>*</span>
+                        <select id="serviceStatus" required>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En progreso">En progreso</option>
+                            <option value="Finalizado">Finalizado</option>
+                            <option value="Entregado">Entregado</option>
+                        </select>
+                    </label>
+                    <label>Refacciones usadas:
+                        <input type="text" id="serviceParts" placeholder="Ej. Aceite, filtro, bujía" />
+                    </label>
+                    <input type="hidden" id="serviceId" />
+                    <button type="submit" class="primary-button">Guardar Servicio</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Listado de Servicios</h2>
+                <div class="table-wrapper">
+                    <table id="serviceTable">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Servicio</th>
+                                <th>Costo</th>
+                                <th>Estatus</th>
+                                <th>Refacciones</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="finanzas" class="tab-content">
+            <div class="panel stats-panel">
+                <h2>Costos e Ingresos</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total de servicios</h3>
+                        <p id="statTotalServices">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Ingresos estimados</h3>
+                        <p id="statTotalIncome">$0.00</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Servicios completados</h3>
+                        <p id="statFinishedServices">0</p>
+                    </div>
+                </div>
+                <p class="note">El sistema guarda información en el almacenamiento local del navegador.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

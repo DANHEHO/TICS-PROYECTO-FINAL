@@ -1,0 +1,254 @@
+:root {
+    --bg: #020203;
+    --surface: #ffc506;
+    --primary: #dba800;
+    --primary-dark: #006aff;
+    --secondary: #006aff;
+    --text: #006aff;
+    --muted: #6b7280;
+    --danger: #dc2626;
+    --success: #16a34a;
+    --border: #d1d5db;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.site-header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 1.5rem 1rem;
+}
+
+.brand h1 {
+    margin: 0;
+    font-size: 1.9rem;
+}
+
+.brand p {
+    margin: 0.5rem 0 0;
+    opacity: 0.9;
+}
+
+.main-nav {
+    margin-top: 1.25rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.tab-button {
+    border: none;
+    cursor: pointer;
+    padding: 0.85rem 1.2rem;
+    background: rgba(255, 255, 255, 0.14);
+    color: white;
+    border-radius: 999px;
+    transition: background 0.2s ease;
+}
+
+.tab-button:hover,
+.tab-button.active {
+    background: rgba(255, 255, 255, 0.28);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 1.5rem auto;
+    padding: 0 1rem 2rem;
+}
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.4rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+h2 {
+    margin-top: 0;
+    color: var(--primary-dark);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.form-grid label {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+    gap: 0.5rem;
+    color: var(--text);
+}
+
+.form-grid span {
+    color: var(--danger);
+    margin-left: 0.2rem;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 0.85rem 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    background: #f9fafb;
+    font: inherit;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.primary-button {
+    grid-column: span 2;
+    border: none;
+    background: var(--primary);
+    color: white;
+    padding: 0.95rem 1.35rem;
+    font-size: 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.primary-button:hover {
+    background: var(--primary-dark);
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 0.9rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    vertical-align: middle;
+}
+
+th {
+    background: #f8fafc;
+    font-weight: 700;
+}
+
+tbody tr:hover {
+    background: #f8fafc;
+}
+
+.action-button {
+    border: none;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.7rem;
+    margin-right: 0.2rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.edit-button {
+    background: #0ea5e9;
+    color: white;
+}
+
+.delete-button {
+    background: var(--danger);
+    color: white;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    color: white;
+    font-size: 0.85rem;
+}
+
+.status-Pendiente {
+    background: #f59e0b;
+}
+
+.status-En\ progreso {
+    background: #3b82f6;
+}
+
+.status-Finalizado {
+    background: var(--success);
+}
+
+.status-Entregado {
+    background: #0f766e;
+}
+
+.stats-panel {
+    text-align: center;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+.stat-card h3 {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    color: var(--muted);
+}
+
+.stat-card p {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.note {
+    margin-top: 1.25rem;
+    color: var(--muted);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@media (max-width: 860px) {
+    .form-grid,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    .primary-button {
+        grid-column: span 1;
+    }
+}

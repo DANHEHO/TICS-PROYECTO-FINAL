@@ -9,26 +9,114 @@ const statTotalServices = document.getElementById("statTotalServices");
 const statTotalIncome = document.getElementById("statTotalIncome");
 const statFinishedServices = document.getElementById("statFinishedServices");
 
+let db;
+
 // Nombres de claves en LocalStorage
 const STORAGE_KEYS = {
-    clients: "tallerClientes",
-    services: "tallerServicios",
+    database: "tallerSqliteDb",
 };
-
-// Obtiene datos desde el localStorage o devuelve un arreglo vacío.
-function loadData(key) {
-    const stored = localStorage.getItem(key);
-    return stored ? JSON.parse(stored) : [];
-}
-
-// Guarda datos en el localStorage.
-function saveData(key, data) {
-    localStorage.setItem(key, JSON.stringify(data));
-}
 
 // Genera un id único simple para registros.
 function generateId() {
     return Date.now().toString() + Math.floor(Math.random() * 1000);
+}
+
+function base64ToUint8Array(base64) {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) {
+        bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+}
+
+function uint8ArrayToBase64(bytes) {
+    let binary = "";
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+    }
+    return btoa(binary);
+}
+
+function saveDatabase() {
+    const data = db.export();
+    localStorage.setItem(STORAGE_KEYS.database, uint8ArrayToBase64(data));
+}
+
+function createTables() {
+    db.run(`
+        CREATE TABLE IF NOT EXISTS clients (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            phone TEXT,
+            email TEXT,
+            vehicle TEXT,
+            plates TEXT,
+            notes TEXT
+        );
+    `);
+    db.run(`
+        CREATE TABLE IF NOT EXISTS services (
+            id TEXT PRIMARY KEY,
+            clientId TEXT,
+            type TEXT,
+            description TEXT,
+            cost REAL,
+            status TEXT,
+            parts TEXT,
+            FOREIGN KEY(clientId) REFERENCES clients(id)
+        );
+    `);
+}
+
+function queryClients() {
+    const res = db.exec("SELECT * FROM clients ORDER BY name;");
+    if (!res.length) return [];
+    return res[0].values.map((row) => ({
+        id: row[0],
+        name: row[1],
+        phone: row[2],
+        email: row[3],
+        vehicle: row[4],
+        plates: row[5],
+        notes: row[6],
+    }));
+}
+
+function queryServices() {
+    const res = db.exec("SELECT * FROM services ORDER BY id DESC;");
+    if (!res.length) return [];
+    return res[0].values.map((row) => ({
+        id: row[0],
+        clientId: row[1],
+        type: row[2],
+        description: row[3],
+        cost: row[4],
+        status: row[5],
+        parts: row[6],
+    }));
+}
+
+function queryOne(sql, params = []) {
+    const stmt = db.prepare(sql);
+    stmt.bind(params);
+    const result = stmt.step() ? stmt.getAsObject() : null;
+    stmt.free();
+    return result;
+}
+
+async function initDatabase() {
+    const SQL = await initSqlJs({ locateFile: (file) => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}` });
+    const savedDb = localStorage.getItem(STORAGE_KEYS.database);
+    if (savedDb) {
+        const bytes = base64ToUint8Array(savedDb);
+        db = new SQL.Database(bytes);
+    } else {
+        db = new SQL.Database();
+    }
+    createTables();
+    saveDatabase();
 }
 
 // Convierte número a formato de moneda local.
@@ -57,7 +145,7 @@ function setupTabs() {
 
 // Actualiza la lista desplegable de clientes en el formulario de servicios.
 function populateClientSelect() {
-    const clients = loadData(STORAGE_KEYS.clients);
+    const clients = queryClients();
     serviceClientSelect.innerHTML = "<option value=''>Selecciona un cliente</option>";
 
     clients.forEach((client) => {
@@ -70,7 +158,7 @@ function populateClientSelect() {
 
 // Actualiza la tabla de clientes con datos actuales.
 function renderClients() {
-    const clients = loadData(STORAGE_KEYS.clients);
+    const clients = queryClients();
     clientTableBody.innerHTML = "";
 
     clients.forEach((client) => {
@@ -91,8 +179,8 @@ function renderClients() {
 
 // Actualiza la tabla de servicios con datos actuales.
 function renderServices() {
-    const services = loadData(STORAGE_KEYS.services);
-    const clients = loadData(STORAGE_KEYS.clients);
+    const services = queryServices();
+    const clients = queryClients();
 
     serviceTableBody.innerHTML = "";
 
@@ -118,7 +206,7 @@ function renderServices() {
 
 // Muestra estadísticas generales de costos e ingresos.
 function renderStats() {
-    const services = loadData(STORAGE_KEYS.services);
+    const services = queryServices();
     const totalIncome = services.reduce((sum, service) => sum + Number(service.cost), 0);
     const finishedCount = services.filter((service) => service.status === "Finalizado" || service.status === "Entregado").length;
 
@@ -143,107 +231,108 @@ function clearServiceForm() {
 function handleClientSubmit(event) {
     event.preventDefault();
 
-    const id = document.getElementById("clientId").value;
-    const clientData = {
-        name: document.getElementById("clientName").value.trim(),
-        phone: document.getElementById("clientPhone").value.trim(),
-        email: document.getElementById("clientEmail").value.trim(),
-        vehicle: document.getElementById("vehicleInfo").value.trim(),
-        plates: document.getElementById("vehiclePlates").value.trim(),
-        notes: document.getElementById("clientNotes").value.trim(),
-    };
+    const id = document.getElementById("clientId").value || generateId();
+    const clientData = [
+        id,
+        document.getElementById("clientName").value.trim(),
+        document.getElementById("clientPhone").value.trim(),
+        document.getElementById("clientEmail").value.trim(),
+        document.getElementById("vehicleInfo").value.trim(),
+        document.getElementById("vehiclePlates").value.trim(),
+        document.getElementById("clientNotes").value.trim(),
+    ];
 
-    const clients = loadData(STORAGE_KEYS.clients);
-
-    if (id) {
-        const index = clients.findIndex((client) => client.id === id);
-        if (index !== -1) {
-            clients[index] = { ...clients[index], ...clientData };
-        }
+    const existing = queryOne("SELECT id FROM clients WHERE id = ?", [id]);
+    if (existing) {
+        db.run(
+            `UPDATE clients SET name = ?, phone = ?, email = ?, vehicle = ?, plates = ?, notes = ? WHERE id = ?`,
+            clientData.slice(1).concat(id)
+        );
     } else {
-        clients.push({ id: generateId(), ...clientData });
+        db.run(
+            `INSERT INTO clients (id, name, phone, email, vehicle, plates, notes) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            clientData
+        );
     }
 
-    saveData(STORAGE_KEYS.clients, clients);
+    saveDatabase();
     clearClientForm();
     populateClientSelect();
     renderClients();
 }
 
-// Maneja el guardado y edición de servicios.
 function handleServiceSubmit(event) {
     event.preventDefault();
 
-    const id = document.getElementById("serviceId").value;
-    const serviceData = {
-        clientId: document.getElementById("serviceClient").value,
-        type: document.getElementById("serviceType").value,
-        description: document.getElementById("serviceDescription").value.trim(),
-        cost: parseFloat(document.getElementById("serviceCost").value) || 0,
-        status: document.getElementById("serviceStatus").value,
-        parts: document.getElementById("serviceParts").value.trim(),
-    };
+    const id = document.getElementById("serviceId").value || generateId();
+    const serviceData = [
+        id,
+        document.getElementById("serviceClient").value,
+        document.getElementById("serviceType").value,
+        document.getElementById("serviceDescription").value.trim(),
+        parseFloat(document.getElementById("serviceCost").value) || 0,
+        document.getElementById("serviceStatus").value,
+        document.getElementById("serviceParts").value.trim(),
+    ];
 
-    const services = loadData(STORAGE_KEYS.services);
-
-    if (id) {
-        const index = services.findIndex((service) => service.id === id);
-        if (index !== -1) {
-            services[index] = { ...services[index], ...serviceData };
-        }
+    const existing = queryOne("SELECT id FROM services WHERE id = ?", [id]);
+    if (existing) {
+        db.run(
+            `UPDATE services SET clientId = ?, type = ?, description = ?, cost = ?, status = ?, parts = ? WHERE id = ?`,
+            serviceData.slice(1).concat(id)
+        );
     } else {
-        services.push({ id: generateId(), ...serviceData });
+        db.run(
+            `INSERT INTO services (id, clientId, type, description, cost, status, parts) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            serviceData
+        );
     }
 
-    saveData(STORAGE_KEYS.services, services);
+    saveDatabase();
     clearServiceForm();
     renderServices();
 }
 
 // Llena los campos del formulario cuando se edita un cliente.
 function editClient(id) {
-    const clients = loadData(STORAGE_KEYS.clients);
-    const client = clients.find((client) => client.id === id);
-    if (!client) return;
+    const row = queryOne("SELECT * FROM clients WHERE id = ?", [id]);
+    if (!row) return;
 
-    document.getElementById("clientId").value = client.id;
-    document.getElementById("clientName").value = client.name;
-    document.getElementById("clientPhone").value = client.phone;
-    document.getElementById("clientEmail").value = client.email;
-    document.getElementById("vehicleInfo").value = client.vehicle;
-    document.getElementById("vehiclePlates").value = client.plates;
-    document.getElementById("clientNotes").value = client.notes;
+    document.getElementById("clientId").value = row.id;
+    document.getElementById("clientName").value = row.name;
+    document.getElementById("clientPhone").value = row.phone;
+    document.getElementById("clientEmail").value = row.email;
+    document.getElementById("vehicleInfo").value = row.vehicle;
+    document.getElementById("vehiclePlates").value = row.plates;
+    document.getElementById("clientNotes").value = row.notes;
 }
 
 // Llena los campos del formulario cuando se edita un servicio.
 function editService(id) {
-    const services = loadData(STORAGE_KEYS.services);
-    const service = services.find((item) => item.id === id);
-    if (!service) return;
+    const row = queryOne("SELECT * FROM services WHERE id = ?", [id]);
+    if (!row) return;
 
-    document.getElementById("serviceId").value = service.id;
-    document.getElementById("serviceClient").value = service.clientId;
-    document.getElementById("serviceType").value = service.type;
-    document.getElementById("serviceDescription").value = service.description;
-    document.getElementById("serviceCost").value = service.cost;
-    document.getElementById("serviceStatus").value = service.status;
-    document.getElementById("serviceParts").value = service.parts;
+    document.getElementById("serviceId").value = row.id;
+    document.getElementById("serviceClient").value = row.clientId;
+    document.getElementById("serviceType").value = row.type;
+    document.getElementById("serviceDescription").value = row.description;
+    document.getElementById("serviceCost").value = row.cost;
+    document.getElementById("serviceStatus").value = row.status;
+    document.getElementById("serviceParts").value = row.parts;
 }
 
 // Elimina un cliente y actualiza tableros.
 function deleteClient(id) {
-    const clients = loadData(STORAGE_KEYS.clients);
-    const remaining = clients.filter((client) => client.id !== id);
-    saveData(STORAGE_KEYS.clients, remaining);
+    db.run("DELETE FROM clients WHERE id = ?", [id]);
+    saveDatabase();
     populateClientSelect();
     renderClients();
 }
 
 // Elimina un servicio y actualiza métricas.
 function deleteService(id) {
-    const services = loadData(STORAGE_KEYS.services);
-    const remaining = services.filter((service) => service.id !== id);
-    saveData(STORAGE_KEYS.services, remaining);
+    db.run("DELETE FROM services WHERE id = ?", [id]);
+    saveDatabase();
     renderServices();
 }
 
@@ -276,7 +365,8 @@ function setupTableActions() {
 }
 
 // Inicializa el sistema al cargar la página.
-function initApp() {
+async function initApp() {
+    await initDatabase();
     setupTabs();
     populateClientSelect();
     renderClients();

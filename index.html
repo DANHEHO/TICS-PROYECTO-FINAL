@@ -4,78 +4,128 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sistema Taller Mecánico</title>
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
     <header class="site-header">
         <div class="brand">
             <h1>Taller Mecánico</h1>
             <p>CRM + ERP para clientes, vehículos, servicios y refacciones</p>
         </div>
+
         <nav class="main-nav">
             <button class="tab-button active" data-tab="crm">CRM Clientes</button>
             <button class="tab-button" data-tab="erp">ERP Servicios</button>
+            <button class="tab-button" data-tab="piezas">Piezas</button>
+            <button class="tab-button" data-tab="beneficio">Costo Beneficio</button>
             <button class="tab-button" data-tab="finanzas">Costos e Ingresos</button>
         </nav>
     </header>
 
     <main class="container">
+
+        <!-- CRM -->
         <section id="crm" class="tab-content active">
+
             <div class="panel">
                 <h2>Registro de Clientes y Vehículos</h2>
+
                 <form id="clientForm" class="form-grid">
-                    <label>Nombre completo:<span>*</span>
+
+                    <label>
+                        Nombre completo:<span>*</span>
                         <input type="text" id="clientName" required />
                     </label>
-                    <label>Teléfono:<span>*</span>
+
+                    <label>
+                        Teléfono:<span>*</span>
                         <input type="tel" id="clientPhone" required />
                     </label>
-                    <label>Correo electrónico:
+
+                    <label>
+                        Correo electrónico:
                         <input type="email" id="clientEmail" />
                     </label>
-                    <label>Marca / Modelo / Año:<span>*</span>
+
+                    <label>
+                        Marca / Modelo / Año:<span>*</span>
                         <input type="text" id="vehicleInfo" required />
                     </label>
-                    <label>Placas / VIN:
+
+                    <label>
+                        Placas / VIN:
                         <input type="text" id="vehiclePlates" />
                     </label>
-                    <label>Observaciones:
+
+                    <label>
+                        Kilometraje:
+                        <input type="number" id="vehicleMileage" />
+                    </label>
+
+                    <label>
+                        Observaciones:
                         <textarea id="clientNotes" rows="3"></textarea>
                     </label>
+
                     <input type="hidden" id="clientId" />
-                    <button type="submit" class="primary-button">Guardar Cliente</button>
+
+                    <button type="submit" class="primary-button">
+                        Guardar Cliente
+                    </button>
+
                 </form>
             </div>
 
             <div class="panel">
+
                 <h2>Listado de Clientes</h2>
+
                 <div class="table-wrapper">
+
                     <table id="clientTable">
+
                         <thead>
                             <tr>
                                 <th>Nombre</th>
                                 <th>Teléfono</th>
                                 <th>Vehículo</th>
                                 <th>Placas</th>
+                                <th>Kilometraje</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
+
                         <tbody></tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
         </section>
 
+        <!-- ERP -->
         <section id="erp" class="tab-content">
+
             <div class="panel">
+
                 <h2>Registro de Servicios, Citas y Refacciones</h2>
+
                 <form id="serviceForm" class="form-grid">
-                    <label>Cliente:<span>*</span>
+
+                    <label>
+                        Cliente:<span>*</span>
+
                         <select id="serviceClient" required>
                             <option value="">Selecciona un cliente</option>
                         </select>
                     </label>
-                    <label>Tipo de servicio:<span>*</span>
+
+                    <label>
+                        Tipo de servicio:<span>*</span>
+
                         <select id="serviceType" required>
                             <option value="Mantenimiento">Mantenimiento</option>
                             <option value="Reparación">Reparación</option>
@@ -83,13 +133,25 @@
                             <option value="Refacción">Refacción</option>
                         </select>
                     </label>
-                    <label>Descripción:<span>*</span>
+
+                    <label>
+                        Fecha del servicio:
+                        <input type="date" id="serviceDate" />
+                    </label>
+
+                    <label>
+                        Descripción:<span>*</span>
                         <textarea id="serviceDescription" rows="3" required></textarea>
                     </label>
-                    <label>Costo estimado (MXN):<span>*</span>
-                        <input type="number" id="serviceCost" min="0" step="0.01" required />
+
+                    <label>
+                        Costo mano de obra (MXN):<span>*</span>
+                        <input type="number" id="serviceLabor" min="0" step="0.01" required />
                     </label>
-                    <label>Estatus:<span>*</span>
+
+                    <label>
+                        Estatus:<span>*</span>
+
                         <select id="serviceStatus" required>
                             <option value="Pendiente">Pendiente</option>
                             <option value="En progreso">En progreso</option>
@@ -97,57 +159,282 @@
                             <option value="Entregado">Entregado</option>
                         </select>
                     </label>
-                    <label>Refacciones usadas:
-                        <input type="text" id="serviceParts" placeholder="Ej. Aceite, filtro, bujía" />
+
+                    <label>
+                        Método de pago:
+
+                        <select id="paymentMethod">
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Tarjeta">Tarjeta</option>
+                            <option value="Transferencia">Transferencia</option>
+                        </select>
                     </label>
+
+                    <label>
+                        Refacciones usadas:
+
+                        <select id="serviceParts">
+                            <option value="">Selecciona una refacción</option>
+
+                            <option value="Aceite de motor">
+                                Aceite de motor - $650
+                            </option>
+
+                            <option value="Filtro de aceite">
+                                Filtro de aceite - $180
+                            </option>
+
+                            <option value="Filtro de aire">
+                                Filtro de aire - $250
+                            </option>
+
+                            <option value="Bujías">
+                                Bujías - $480
+                            </option>
+
+                            <option value="Balatas delanteras">
+                                Balatas delanteras - $950
+                            </option>
+
+                            <option value="Balatas traseras">
+                                Balatas traseras - $850
+                            </option>
+
+                            <option value="Batería">
+                                Batería - $2200
+                            </option>
+
+                            <option value="Anticongelante">
+                                Anticongelante - $320
+                            </option>
+
+                            <option value="Amortiguador">
+                                Amortiguador - $1350
+                            </option>
+
+                            <option value="Banda de distribución">
+                                Banda de distribución - $1600
+                            </option>
+
+                        </select>
+                    </label>
+
+                    <label>
+                        Costo total estimado (MXN):
+                        <input type="number" id="serviceCost" min="0" step="0.01" required />
+                    </label>
+
                     <input type="hidden" id="serviceId" />
-                    <button type="submit" class="primary-button">Guardar Servicio</button>
+
+                    <button type="submit" class="primary-button">
+                        Guardar Servicio
+                    </button>
+
                 </form>
+
             </div>
 
             <div class="panel">
+
                 <h2>Listado de Servicios</h2>
+
                 <div class="table-wrapper">
+
                     <table id="serviceTable">
+
                         <thead>
                             <tr>
                                 <th>Cliente</th>
                                 <th>Servicio</th>
+                                <th>Fecha</th>
+                                <th>Mano de obra</th>
                                 <th>Costo</th>
                                 <th>Estatus</th>
+                                <th>Método pago</th>
                                 <th>Refacciones</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
+
                         <tbody></tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
         </section>
 
-        <section id="finanzas" class="tab-content">
+        <!-- PIEZAS -->
+        <section id="piezas" class="tab-content">
+
+            <div class="panel">
+
+                <h2>Inventario de Piezas y Refacciones</h2>
+
+                <form id="partsForm" class="form-grid">
+
+                    <label>
+                        Nombre de la pieza:
+                        <input type="text" id="partName" />
+                    </label>
+
+                    <label>
+                        Precio:
+                        <input type="number" id="partPrice" />
+                    </label>
+
+                    <label>
+                        Stock:
+                        <input type="number" id="partStock" />
+                    </label>
+
+                    <button type="submit" class="primary-button">
+                        Agregar Pieza
+                    </button>
+
+                </form>
+
+            </div>
+
+            <div class="panel">
+
+                <h2>Listado de Piezas</h2>
+
+                <div class="table-wrapper">
+
+                    <table id="partsTable">
+
+                        <thead>
+                            <tr>
+                                <th>Pieza</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>Aceite de motor</td>
+                                <td>$650</td>
+                                <td>15</td>
+                                <td>
+                                    <button>Editar</button>
+                                    <button>Eliminar</button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Filtro de aceite</td>
+                                <td>$180</td>
+                                <td>25</td>
+                                <td>
+                                    <button>Editar</button>
+                                    <button>Eliminar</button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Balatas delanteras</td>
+                                <td>$950</td>
+                                <td>8</td>
+                                <td>
+                                    <button>Editar</button>
+                                    <button>Eliminar</button>
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- COSTO BENEFICIO -->
+        <section id="beneficio" class="tab-content">
+
             <div class="panel stats-panel">
-                <h2>Costos e Ingresos</h2>
+
+                <h2>Análisis de Costo Beneficio</h2>
+
                 <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <h3>Ingresos Totales</h3>
+                        <p id="totalIncome">$0.00</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>Gastos en Refacciones</h3>
+                        <p id="totalPartsCost">$0.00</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>Ganancia Estimada</h3>
+                        <p id="estimatedProfit">$0.00</p>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>Servicios Completados</h3>
+                        <p id="completedServices">0</p>
+                    </div>
+
+                </div>
+
+                <p class="note">
+                    Este apartado muestra el análisis general entre ingresos,
+                    costos de piezas y ganancias estimadas del taller.
+                </p>
+
+            </div>
+
+        </section>
+
+        <!-- FINANZAS -->
+        <section id="finanzas" class="tab-content">
+
+            <div class="panel stats-panel">
+
+                <h2>Costos e Ingresos</h2>
+
+                <div class="stats-grid">
+
                     <div class="stat-card">
                         <h3>Total de servicios</h3>
                         <p id="statTotalServices">0</p>
                     </div>
+
                     <div class="stat-card">
                         <h3>Ingresos estimados</h3>
                         <p id="statTotalIncome">$0.00</p>
                     </div>
+
                     <div class="stat-card">
                         <h3>Servicios completados</h3>
                         <p id="statFinishedServices">0</p>
                     </div>
+
                 </div>
-                <p class="note">El sistema usa una base de datos SQLite local almacenada en tu equipo dentro del navegador.</p>
+
+                <p class="note">
+                    El sistema usa almacenamiento local dentro del navegador.
+                </p>
+
             </div>
+
         </section>
+
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
-    <script src="js/app.js"></script>
+    <script src="app.js"></script>
+
 </body>
 </html>
